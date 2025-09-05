@@ -244,21 +244,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         margin: const EdgeInsets.all(16.0),
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white,
-                              Color(0xFFFAFBFF),
-                            ],
-                          ),
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.grey[300]!,
+                            width: 1,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.blue.withOpacity(0.08),
-                              blurRadius: 20,
-                              spreadRadius: 5,
-                              offset: const Offset(0, 8),
+                              color: Colors.black.withOpacity(0.06),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
@@ -315,9 +312,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     horizontalInterval: _getYInterval(),
                                     getDrawingHorizontalLine: (value) {
                                       return FlLine(
-                                        color: Colors.grey.withOpacity(0.15),
+                                        color: Colors.grey[300]!,
                                         strokeWidth: 1,
-                                        dashArray: [8, 4],
+                                        dashArray: [5, 5],
                                       );
                                     },
                                   ),
@@ -326,8 +323,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       axisNameWidget: Text(
                                         'Time',
                                         style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey[600],
+                                          fontSize: 12,
+                                          color: Colors.grey[700],
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                       axisNameSize: 20,
@@ -361,8 +359,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             child: Text(
                                               DateFormat(format).format(currentTime),
                                               style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 9,
+                                                color: Colors.grey[700],
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           );
@@ -375,8 +374,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                         child: Text(
                                           'Speed (SPM)',
                                           style: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.grey[600],
+                                            fontSize: 12,
+                                            color: Colors.grey[700],
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                       ),
@@ -394,9 +394,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             child: Text(
                                               value.toInt().toString(),
                                               style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w500,
+                                                color: Colors.grey[700],
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                           );
@@ -413,8 +413,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   borderData: FlBorderData(
                                     show: true,
                                     border: Border(
-                                      bottom: BorderSide(color: Colors.grey[400]!, width: 1.5),
-                                      left: BorderSide(color: Colors.grey[400]!, width: 1.5),
+                                      bottom: BorderSide(color: Colors.grey[500]!, width: 2),
+                                      left: BorderSide(color: Colors.grey[500]!, width: 2),
                                       right: BorderSide(color: Colors.transparent),
                                       top: BorderSide(color: Colors.transparent),
                                     ),
@@ -430,7 +430,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       curveSmoothness: 0.2,
                                       preventCurveOverShooting: true,
                                       color: theme.primaryColor,
-                                      barWidth: 2,
+                                      barWidth: 3,
                                       isStrokeCapRound: true,
                                       dotData: FlDotData(
                                         show: _speedData.length <= 20,
@@ -447,12 +447,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                         show: true,
                                         gradient: LinearGradient(
                                           colors: [
-                                            theme.primaryColor.withOpacity(0.2),
-                                            theme.primaryColor.withOpacity(0.0),
+                                            theme.primaryColor.withOpacity(0.15),
+                                            theme.primaryColor.withOpacity(0.02),
                                           ],
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
-                                          stops: const [0.5, 1.0],
+                                          stops: const [0.3, 1.0],
                                         ),
                                       ),
                                     ),
@@ -460,7 +460,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   lineTouchData: LineTouchData(
                                     touchTooltipData: LineTouchTooltipData(
                                       tooltipRoundedRadius: 12,
-                                      tooltipPadding: const EdgeInsets.all(12),
+                                      tooltipPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      tooltipBgColor: Colors.grey[900]!.withOpacity(0.95),
                                       getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
                                         return touchedBarSpots.map((barSpot) {
                                           final sortedData = List<Map<String, dynamic>>.from(_speedData)
@@ -477,25 +478,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             children: [
                                               TextSpan(
                                                 text: '${barSpot.y.toInt()}',
-                                                style: TextStyle(
-                                                  color: theme.primaryColor,
-                                                  fontSize: 16,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
                                               const TextSpan(
                                                 text: ' SPM\n',
                                                 style: TextStyle(
-                                                  color: Colors.black87,
-                                                  fontSize: 12,
+                                                  color: Colors.white70,
+                                                  fontSize: 13,
                                                   fontWeight: FontWeight.normal,
                                                 ),
                                               ),
                                               TextSpan(
                                                 text: DateFormat('HH:mm:ss').format(touchedTime),
-                                                style: TextStyle(
-                                                  color: Colors.grey[600],
-                                                  fontSize: 11,
+                                                style: const TextStyle(
+                                                  color: Colors.white60,
+                                                  fontSize: 12,
                                                   fontWeight: FontWeight.normal,
                                                 ),
                                               ),
