@@ -370,7 +370,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     ),
                                     leftTitles: AxisTitles(
                                       axisNameWidget: RotatedBox(
-                                        quarterTurns: 3,
+                                        quarterTurns: 1,
                                         child: Text(
                                           'Speed (SPM)',
                                           style: TextStyle(
