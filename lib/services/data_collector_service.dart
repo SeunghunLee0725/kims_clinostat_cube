@@ -88,6 +88,9 @@ class DataCollectorService {
     } catch (e) {
       print('Error handling status update: $e');
       print('Error details: ${e.toString()}');
+      print('Stack trace: ${StackTrace.current}');
+      
+      // Don't rethrow - continue collecting data even if save fails
     }
   }
   

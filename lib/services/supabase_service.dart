@@ -47,6 +47,17 @@ class SupabaseService {
       if (e.toString().contains('PostgrestException')) {
         print('Database error - check if table exists and has correct schema');
       }
+      
+      // Check for CORS or network errors
+      if (e.toString().contains('XMLHttpRequest') || 
+          e.toString().contains('CORS') ||
+          e.toString().contains('Failed to fetch')) {
+        print('CORS or Network error detected');
+        print('Make sure GitHub Pages URL is added to Supabase allowed URLs');
+      }
+      
+      // Re-throw to see full stack trace in production
+      rethrow;
     }
   }
   
