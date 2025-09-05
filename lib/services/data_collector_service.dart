@@ -45,9 +45,16 @@ class DataCollectorService {
   void _subscribeToStatusUpdates() {
     _statusSubscription?.cancel();
     
+    print('DataCollectorService: Subscribing to MQTT status updates...');
     _statusSubscription = _mqttService.statusStream.listen((payload) {
+      print('DataCollectorService: Status stream received data');
       _handleStatusUpdate(payload);
+    }, onError: (error) {
+      print('DataCollectorService: Status stream error: $error');
+    }, onDone: () {
+      print('DataCollectorService: Status stream closed');
     });
+    print('DataCollectorService: Subscription created');
   }
   
   Future<void> _handleStatusUpdate(String payload) async {

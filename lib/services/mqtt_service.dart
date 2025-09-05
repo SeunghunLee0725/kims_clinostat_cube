@@ -131,8 +131,11 @@ class MqttService {
         print('Message payload: $payload');
         
         if (message.topic == statusTopic) {
-          print('Status message received: $payload');
+          print('MQTT Service: Status message received on topic $statusTopic');
+          print('MQTT Service: Payload: $payload');
+          print('MQTT Service: Adding to status stream controller...');
           _statusStreamController.add(payload);
+          print('MQTT Service: Added to status stream controller');
         }
       }
     });
