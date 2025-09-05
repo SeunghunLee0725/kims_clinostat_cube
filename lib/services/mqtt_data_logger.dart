@@ -35,6 +35,23 @@ class MqttDataLogger {
     try {
       // Payload format: "ip=192.168.50.2,rssi=-55,run=on,mode=RUN,current_spm=100,..."
       final pairs = payload.split(',');
+      
+      // First check if run=off
+      bool isRunOff = false;
+      for (final pair in pairs) {
+        final parts = pair.split('=');
+        if (parts.length == 2 && parts[0].trim() == 'run' && parts[1].trim() == 'off') {
+          isRunOff = true;
+          break;
+        }
+      }
+      
+      // If run=off, return 0 regardless of current_spm value
+      if (isRunOff) {
+        return 0;
+      }
+      
+      // Otherwise, parse and return current_spm value
       for (final pair in pairs) {
         final parts = pair.split('=');
         if (parts.length == 2 && parts[0].trim() == 'current_spm') {
