@@ -34,7 +34,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
     
     _dataCollector.startPeriodicCollection(
-      interval: const Duration(seconds: 30),
+      interval: const Duration(seconds: 10),
     );
     
     // Listen to MQTT status updates
