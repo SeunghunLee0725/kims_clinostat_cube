@@ -10,8 +10,14 @@ import 'services/supabase_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Supabase
-  await SupabaseService.initialize();
+  // Initialize Supabase with error handling
+  try {
+    print('Initializing Supabase...');
+    await SupabaseService.initialize();
+    print('Supabase initialized successfully!');
+  } catch (e) {
+    print('ERROR initializing Supabase: $e');
+  }
   
   runApp(const MyApp());
 }

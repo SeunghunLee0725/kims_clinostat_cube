@@ -18,20 +18,27 @@ class DataCollectorService {
   void startPeriodicCollection({
     Duration interval = const Duration(seconds: 30),
   }) {
+    print('DataCollectorService: Starting periodic collection with interval: $interval');
     _collectionTimer?.cancel();
     
     _collectionTimer = Timer.periodic(interval, (timer) {
+      print('DataCollectorService: Timer triggered - requesting status update');
       _requestStatusUpdate();
     });
     
     _subscribeToStatusUpdates();
     
+    // Initial request
+    print('DataCollectorService: Sending initial status request');
     _requestStatusUpdate();
   }
   
   void _requestStatusUpdate() {
     if (_mqttService.isConnected) {
+      print('DataCollectorService: MQTT connected, publishing GET_STATUS command');
       _mqttService.publishCommand('GET_STATUS');
+    } else {
+      print('DataCollectorService: MQTT not connected, skipping status request');
     }
   }
   

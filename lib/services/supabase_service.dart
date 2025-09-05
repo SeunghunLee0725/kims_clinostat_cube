@@ -23,17 +23,30 @@ class SupabaseService {
       print('  currentSpm: $currentSpm');
       print('  timestamp: ${timestamp.toIso8601String()}');
       
-      final result = await client.from('mqtt_data').insert({
+      // Check if Supabase is initialized
+      print('Supabase URL: ${Environment.supabaseUrl}');
+      print('Supabase client initialized: ${Supabase.instance.client != null}');
+      
+      final supabaseClient = Supabase.instance.client;
+      print('About to insert data to mqtt_data table...');
+      
+      final result = await supabaseClient.from('mqtt_data').insert({
         'device_id': deviceId,
         'current_spm': currentSpm,
         'timestamp': timestamp.toIso8601String(),
       }).select();
       
+      print('Supabase insert successful!');
       print('Supabase insert result: $result');
     } catch (e) {
-      print('Error saving speed data to Supabase: $e');
+      print('ERROR saving speed data to Supabase: $e');
       print('Error type: ${e.runtimeType}');
       print('Error details: ${e.toString()}');
+      
+      // Check if it's a PostgrestException
+      if (e.toString().contains('PostgrestException')) {
+        print('Database error - check if table exists and has correct schema');
+      }
     }
   }
   
