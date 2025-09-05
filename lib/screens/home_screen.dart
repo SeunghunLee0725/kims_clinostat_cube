@@ -91,36 +91,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             minimumSize: const Size.fromHeight(48),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        // Test Supabase button
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            print('Testing Supabase direct insert...');
-                            try {
-                              final supabaseService = SupabaseService();
-                              await supabaseService.saveSpeedData(
-                                deviceId: 's25007/board1',
-                                currentSpm: 999,
-                                timestamp: DateTime.now(),
-                              );
-                              print('Test insert completed');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Supabase test completed - check console')),
-                              );
-                            } catch (e) {
-                              print('Test insert error: $e');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Supabase test error: $e')),
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.storage),
-                          label: const Text('Test Supabase Save'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            minimumSize: const Size.fromHeight(48),
-                          ),
-                        ),
                       ],
                     ),
                   ),
