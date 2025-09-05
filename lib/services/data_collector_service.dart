@@ -8,6 +8,7 @@ class DataCollectorService {
   
   Timer? _collectionTimer;
   StreamSubscription<String>? _statusSubscription;
+  bool _shouldSaveNextStatus = false;
   
   DataCollectorService({
     required MqttService mqttService,
@@ -23,6 +24,7 @@ class DataCollectorService {
     
     _collectionTimer = Timer.periodic(interval, (timer) {
       print('DataCollectorService: Timer triggered - requesting status update');
+      _shouldSaveNextStatus = true;  // Mark that we want to save the next status
       _requestStatusUpdate();
     });
     
@@ -30,6 +32,7 @@ class DataCollectorService {
     
     // Initial request
     print('DataCollectorService: Sending initial status request');
+    _shouldSaveNextStatus = true;  // Mark for initial save
     _requestStatusUpdate();
   }
   
@@ -60,6 +63,15 @@ class DataCollectorService {
   Future<void> _handleStatusUpdate(String payload) async {
     try {
       print('DataCollector received status update: $payload');
+      
+      // Only save if this update was requested by our timer
+      if (!_shouldSaveNextStatus) {
+        print('DataCollector: Ignoring automatic status update (not requested by timer)');
+        return;
+      }
+      
+      // Reset the flag
+      _shouldSaveNextStatus = false;
       
       // Extract current_spm from the status data
       final statusPairs = payload.split(',');
