@@ -461,7 +461,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     touchTooltipData: LineTouchTooltipData(
                                       tooltipRoundedRadius: 12,
                                       tooltipPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                      tooltipBgColor: Colors.grey[900]!.withOpacity(0.95),
+                                      getTooltipColor: (touchedSpot) => Colors.grey[900]!.withOpacity(0.95),
                                       getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
                                         return touchedBarSpots.map((barSpot) {
                                           final sortedData = List<Map<String, dynamic>>.from(_speedData)
