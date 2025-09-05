@@ -25,8 +25,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
   
   void _initializeServices() {
-    final mqttService = context.read<MqttService>();
     final mqttProvider = context.read<MqttProvider>();
+    final mqttService = mqttProvider.mqttService;
     
     _dataCollector = DataCollectorService(
       mqttService: mqttService,

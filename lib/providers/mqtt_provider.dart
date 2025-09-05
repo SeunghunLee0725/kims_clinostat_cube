@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/mqtt_service.dart';
 
 class MqttProvider extends ChangeNotifier {
-  final MqttService _mqttService = MqttService();
+  final MqttService _mqttService;
   
   bool _isConnected = false;
   String _statusMessage = '상태 정보 대기중...';
@@ -11,8 +11,9 @@ class MqttProvider extends ChangeNotifier {
   bool get isConnected => _isConnected;
   String get statusMessage => _statusMessage;
   Map<String, String> get statusData => _statusData;
+  MqttService get mqttService => _mqttService;
   
-  MqttProvider() {
+  MqttProvider({required MqttService mqttService}) : _mqttService = mqttService {
     _initializeStreams();
   }
   

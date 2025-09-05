@@ -29,8 +29,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => MqttProvider()),
         Provider(create: (_) => MqttService()),
+        ChangeNotifierProvider(
+          create: (context) => MqttProvider(
+            mqttService: context.read<MqttService>(),
+          ),
+        ),
       ],
       child: MaterialApp(
         title: 'S25007 IoT Platform',
