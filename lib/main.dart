@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/mqtt_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/dashboard_screen.dart';
+import 'screens/history_screen.dart';
 import 'services/mqtt_service.dart';
 import 'services/supabase_service.dart';
 
@@ -50,6 +51,7 @@ class _MainNavigatorState extends State<MainNavigator> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const DashboardScreen(),
+    const HistoryScreen(),
   ];
   
   @override
@@ -71,6 +73,10 @@ class _MainNavigatorState extends State<MainNavigator> {
           NavigationDestination(
             icon: Icon(Icons.dashboard),
             label: 'Dashboard',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.history),
+            label: 'History',
           ),
         ],
       ),

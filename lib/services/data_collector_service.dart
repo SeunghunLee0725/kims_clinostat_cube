@@ -45,13 +45,27 @@ class DataCollectorService {
   
   Future<void> _handleStatusUpdate(String payload) async {
     try {
-      await _supabaseService.saveMqttData(
-        topic: MqttService.statusTopic,
-        payload: payload,
-        timestamp: DateTime.now(),
-      );
+      // Extract current_spm from the status data
+      final statusPairs = payload.split(',');
+      int? currentSpm;
       
-      print('Status data saved to Supabase: $payload');
+      for (final pair in statusPairs) {
+        final keyValue = pair.trim().split('=');
+        if (keyValue.length == 2 && keyValue[0] == 'current_spm') {
+          currentSpm = int.tryParse(keyValue[1]);
+          break;
+        }
+      }
+      
+      // Only save if we have current_spm data
+      if (currentSpm != null) {
+        await _supabaseService.saveSpeedData(
+          deviceId: 's25007/board1',
+          currentSpm: currentSpm,
+          timestamp: DateTime.now(),
+        );
+        print('Speed data saved to Supabase: current_spm=$currentSpm');
+      }
     } catch (e) {
       print('Error handling status update: $e');
     }

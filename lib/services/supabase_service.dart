@@ -1,59 +1,202 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/environment.dart';
 
 class SupabaseService {
-  static const String supabaseUrl = 'YOUR_SUPABASE_URL';
-  static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
-  
   static Future<void> initialize() async {
     await Supabase.initialize(
-      url: supabaseUrl,
-      anonKey: supabaseAnonKey,
+      url: Environment.supabaseUrl,
+      anonKey: Environment.supabaseAnonKey,
     );
   }
   
   static SupabaseClient get client => Supabase.instance.client;
   
-  Future<void> saveMqttData({
-    required String topic,
-    required String payload,
+  // Save speed data to Supabase
+  Future<void> saveSpeedData({
+    required String deviceId,
+    required int currentSpm,
     required DateTime timestamp,
   }) async {
     try {
       await client.from('mqtt_data').insert({
-        'topic': topic,
-        'payload': payload,
+        'device_id': deviceId,
+        'current_spm': currentSpm,
         'timestamp': timestamp.toIso8601String(),
       });
     } catch (e) {
-      print('Error saving to Supabase: $e');
+      print('Error saving speed data to Supabase: $e');
     }
   }
   
-  Future<List<Map<String, dynamic>>> getRecentData({
+  // Get last hour speed data
+  Future<List<Map<String, dynamic>>> getLastHourSpeedData({
+    required String deviceId,
+  }) async {
+    try {
+      final now = DateTime.now();
+      final oneHourAgo = now.subtract(const Duration(hours: 1));
+      
+      final response = await client
+          .from('mqtt_data')
+          .select('current_spm, timestamp')
+          .eq('device_id', deviceId)
+          .gte('timestamp', oneHourAgo.toIso8601String())
+          .lte('timestamp', now.toIso8601String())
+          .order('timestamp', ascending: true);
+      
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching last hour speed data: $e');
+      return [];
+    }
+  }
+  
+  // Get last 24 hours speed data
+  Future<List<Map<String, dynamic>>> getLast24HoursSpeedData({
+    required String deviceId,
+  }) async {
+    try {
+      final now = DateTime.now();
+      final twentyFourHoursAgo = now.subtract(const Duration(hours: 24));
+      
+      final response = await client
+          .from('mqtt_data')
+          .select('current_spm, timestamp')
+          .eq('device_id', deviceId)
+          .gte('timestamp', twentyFourHoursAgo.toIso8601String())
+          .lte('timestamp', now.toIso8601String())
+          .order('timestamp', ascending: true);
+      
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching last 24 hours speed data: $e');
+      return [];
+    }
+  }
+  
+  // Get speed data by time range
+  Future<List<Map<String, dynamic>>> getSpeedDataByTimeRange({
+    required DateTime startTime,
+    required DateTime endTime,
+    required String deviceId,
+  }) async {
+    try {
+      final response = await client
+          .from('mqtt_data')
+          .select('current_spm, timestamp')
+          .eq('device_id', deviceId)
+          .gte('timestamp', startTime.toIso8601String())
+          .lte('timestamp', endTime.toIso8601String())
+          .order('timestamp', ascending: true);
+      
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching speed data by time range: $e');
+      return [];
+    }
+  }
+  
+  // Get speed statistics (min, max, count)
+  Future<Map<String, int>> getSpeedStats({
+    required DateTime startTime,
+    required DateTime endTime,
+    required String deviceId,
+  }) async {
+    try {
+      final response = await client
+          .from('mqtt_data')
+          .select('current_spm')
+          .eq('device_id', deviceId)
+          .gte('timestamp', startTime.toIso8601String())
+          .lte('timestamp', endTime.toIso8601String());
+      
+      final data = List<Map<String, dynamic>>.from(response);
+      
+      if (data.isEmpty) {
+        return {'min': 0, 'max': 0, 'count': 0};
+      }
+      
+      int min = data.first['current_spm'];
+      int max = data.first['current_spm'];
+      
+      for (final item in data) {
+        final speed = item['current_spm'] as int;
+        if (speed < min) min = speed;
+        if (speed > max) max = speed;
+      }
+      
+      return {
+        'min': min,
+        'max': max,
+        'count': data.length,
+      };
+    } catch (e) {
+      print('Error fetching speed stats: $e');
+      return {'min': 0, 'max': 0, 'count': 0};
+    }
+  }
+  
+  // Get average speed
+  Future<double> getAverageSpeed({
+    required DateTime startTime,
+    required DateTime endTime,
+    required String deviceId,
+  }) async {
+    try {
+      final response = await client
+          .from('mqtt_data')
+          .select('current_spm')
+          .eq('device_id', deviceId)
+          .gte('timestamp', startTime.toIso8601String())
+          .lte('timestamp', endTime.toIso8601String());
+      
+      final data = List<Map<String, dynamic>>.from(response);
+      
+      if (data.isEmpty) return 0.0;
+      
+      int sum = 0;
+      for (final item in data) {
+        sum += item['current_spm'] as int;
+      }
+      
+      return sum / data.length;
+    } catch (e) {
+      print('Error fetching average speed: $e');
+      return 0.0;
+    }
+  }
+  
+  // Get recent speed data
+  Future<List<Map<String, dynamic>>> getRecentSpeedData({
+    required String deviceId,
     int limit = 100,
   }) async {
     try {
       final response = await client
           .from('mqtt_data')
-          .select()
+          .select('current_spm, timestamp, device_id')
+          .eq('device_id', deviceId)
           .order('timestamp', ascending: false)
           .limit(limit);
       
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('Error fetching from Supabase: $e');
+      print('Error fetching recent speed data: $e');
       return [];
     }
   }
   
-  Stream<List<Map<String, dynamic>>> subscribeToRealtimeData() {
+  // Subscribe to realtime speed updates
+  Stream<List<Map<String, dynamic>>> subscribeToRealtimeSpeedData(String deviceId) {
     return client
         .from('mqtt_data')
         .stream(primaryKey: ['id'])
+        .eq('device_id', deviceId)
         .order('timestamp', ascending: false)
         .limit(10);
   }
   
+  // Save command
   Future<void> saveCommand({
     required String command,
     required String source,
