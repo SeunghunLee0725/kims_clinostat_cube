@@ -18,13 +18,22 @@ class SupabaseService {
     required DateTime timestamp,
   }) async {
     try {
-      await client.from('mqtt_data').insert({
+      print('SupabaseService.saveSpeedData called with:');
+      print('  deviceId: $deviceId');
+      print('  currentSpm: $currentSpm');
+      print('  timestamp: ${timestamp.toIso8601String()}');
+      
+      final result = await client.from('mqtt_data').insert({
         'device_id': deviceId,
         'current_spm': currentSpm,
         'timestamp': timestamp.toIso8601String(),
-      });
+      }).select();
+      
+      print('Supabase insert result: $result');
     } catch (e) {
       print('Error saving speed data to Supabase: $e');
+      print('Error type: ${e.runtimeType}');
+      print('Error details: ${e.toString()}');
     }
   }
   

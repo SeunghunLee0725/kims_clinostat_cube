@@ -45,6 +45,8 @@ class DataCollectorService {
   
   Future<void> _handleStatusUpdate(String payload) async {
     try {
+      print('DataCollector received status update: $payload');
+      
       // Extract current_spm from the status data
       final statusPairs = payload.split(',');
       int? currentSpm;
@@ -59,15 +61,19 @@ class DataCollectorService {
       
       // Only save if we have current_spm data
       if (currentSpm != null) {
+        print('Attempting to save speed data: current_spm=$currentSpm');
         await _supabaseService.saveSpeedData(
           deviceId: 's25007/board1',
           currentSpm: currentSpm,
           timestamp: DateTime.now(),
         );
-        print('Speed data saved to Supabase: current_spm=$currentSpm');
+        print('Speed data saved successfully to Supabase: current_spm=$currentSpm');
+      } else {
+        print('No current_spm found in payload: $payload');
       }
     } catch (e) {
       print('Error handling status update: $e');
+      print('Error details: ${e.toString()}');
     }
   }
   
