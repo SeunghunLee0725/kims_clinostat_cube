@@ -73,16 +73,26 @@ class DataCollectorService {
       // Reset the flag
       _shouldSaveNextStatus = false;
       
-      // Extract current_spm from the status data
+      // Extract current_spm from the status data and check run status
       final statusPairs = payload.split(',');
       int? currentSpm;
+      bool isRunOff = false;
       
       for (final pair in statusPairs) {
         final keyValue = pair.trim().split('=');
-        if (keyValue.length == 2 && keyValue[0] == 'current_spm') {
-          currentSpm = int.tryParse(keyValue[1]);
-          break;
+        if (keyValue.length == 2) {
+          if (keyValue[0] == 'current_spm') {
+            currentSpm = int.tryParse(keyValue[1]);
+          } else if (keyValue[0] == 'run' && keyValue[1] == 'off') {
+            isRunOff = true;
+          }
         }
+      }
+      
+      // If run=off, set current_spm to 0 regardless of reported value
+      if (isRunOff) {
+        currentSpm = 0;
+        print('Device is stopped (run=off), setting current_spm to 0');
       }
       
       // Only save if we have current_spm data

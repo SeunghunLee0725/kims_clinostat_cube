@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:mqtt_client/mqtt_client.dart';
-import 'package:mqtt_client/mqtt_server_client.dart';
-// Only import browser client for web platform
-// import 'package:mqtt_client/mqtt_browser_client.dart'; // Removed to fix mobile build
+
+// Conditional imports for platform-specific implementations
+import 'mqtt_client_stub.dart'
+    if (dart.library.io) 'mqtt_client_mobile.dart'
+    if (dart.library.html) 'mqtt_client_web.dart';
 
 class MqttService {
   static const String broker = 'd29c4d0bbdb946beae4aafdfc0e6e342.s1.eu.hivemq.cloud';
@@ -28,19 +30,13 @@ class MqttService {
   }
   
   void _setupClient() {
-    // Generate unique client ID
-    final clientId = 'flutter_mobile_${DateTime.now().millisecondsSinceEpoch}';
+    // Generate unique client ID based on platform
+    final clientId = kIsWeb 
+        ? 'flutter_web_${DateTime.now().millisecondsSinceEpoch}' 
+        : 'flutter_mobile_${DateTime.now().millisecondsSinceEpoch}';
     
-    // Mobile/Desktop platforms - use MqttServerClient
-    final serverClient = MqttServerClient.withPort(broker, clientId, port);
-    serverClient.logging(on: true);
-    serverClient.keepAlivePeriod = 60;
-    serverClient.connectTimeoutPeriod = 10000;
-    serverClient.autoReconnect = false;
-    serverClient.secure = true; // Use secure connection
-    serverClient.setProtocolV311();
-    serverClient.useWebSocket = true; // Use WebSocket for mobile
-    client = serverClient;
+    // Create platform-specific MQTT client
+    client = createMqttClient(broker, clientId, port);
     
     client.onConnected = _onConnected;
     client.onDisconnected = _onDisconnected;

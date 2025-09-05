@@ -6,6 +6,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/history_screen.dart';
 import 'services/mqtt_service.dart';
 import 'services/supabase_service.dart';
+import 'services/data_collector_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,9 +31,16 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider(create: (_) => MqttService()),
+        Provider(create: (_) => SupabaseService()),
         ChangeNotifierProvider(
           create: (context) => MqttProvider(
             mqttService: context.read<MqttService>(),
+          ),
+        ),
+        Provider(
+          create: (context) => DataCollectorService(
+            mqttService: context.read<MqttService>(),
+            supabaseService: context.read<SupabaseService>(),
           ),
         ),
       ],

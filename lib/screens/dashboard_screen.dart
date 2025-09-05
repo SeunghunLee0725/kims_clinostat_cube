@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/mqtt_provider.dart';
-import '../services/mqtt_service.dart';
-import '../services/supabase_service.dart';
-import '../services/data_collector_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -13,31 +10,17 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  late DataCollectorService _dataCollector;
-  late SupabaseService _supabaseService;
   final List<String> _mqttMessages = [];
   
   @override
   void initState() {
     super.initState();
-    _supabaseService = SupabaseService();
     _initializeServices();
   }
   
   void _initializeServices() {
-    final mqttProvider = context.read<MqttProvider>();
-    final mqttService = mqttProvider.mqttService;
-    
-    _dataCollector = DataCollectorService(
-      mqttService: mqttService,
-      supabaseService: _supabaseService,
-    );
-    
-    _dataCollector.startPeriodicCollection(
-      interval: const Duration(seconds: 30),
-    );
-    
     // Listen to MQTT status updates
+    final mqttProvider = context.read<MqttProvider>();
     mqttProvider.addListener(() {
       if (mqttProvider.statusData.isNotEmpty && mounted) {
         setState(() {
@@ -53,7 +36,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   
   @override
   void dispose() {
-    _dataCollector.dispose();
     super.dispose();
   }
   

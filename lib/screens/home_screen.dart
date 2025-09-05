@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/mqtt_provider.dart';
 import '../services/supabase_service.dart';
+import '../services/data_collector_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,9 +18,64 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _spinstepsController = TextEditingController();
   final TextEditingController _spinspmController = TextEditingController();
   bool _isOneStepActive = false;
+  DataCollectorService? _dataCollectorService;
+
+  @override
+  void initState() {
+    super.initState();
+    // Get DataCollectorService and start it when MQTT connects
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _dataCollectorService = context.read<DataCollectorService>();
+      
+      // Listen to MQTT connection status ONLY (not all provider changes)
+      final mqttProvider = context.read<MqttProvider>();
+      
+      // Store the initial connection state
+      bool wasConnected = mqttProvider.isConnected;
+      
+      // Listen to provider changes but only act on connection state changes
+      mqttProvider.addListener(() {
+        bool isNowConnected = mqttProvider.isConnected;
+        
+        // Only react to connection state changes, not every status update
+        if (wasConnected != isNowConnected) {
+          wasConnected = isNowConnected;
+          _onMqttConnectionChanged(isNowConnected);
+        }
+      });
+      
+      // If already connected, start data collection
+      if (mqttProvider.isConnected) {
+        _startDataCollection();
+      }
+    });
+  }
+
+  void _onMqttConnectionChanged(bool isConnected) {
+    if (isConnected) {
+      _startDataCollection();
+    } else {
+      _stopDataCollection();
+    }
+  }
+
+  void _startDataCollection() {
+    _dataCollectorService?.startPeriodicCollection(
+      interval: const Duration(seconds: 30),
+    );
+    print('DataCollectorService started from HomeScreen');
+  }
+
+  void _stopDataCollection() {
+    _dataCollectorService?.stopCollection();
+    print('DataCollectorService stopped from HomeScreen');
+  }
 
   @override
   void dispose() {
+    // Note: We don't need to explicitly remove the listener since we're using an anonymous function
+    // The listener will be removed when the provider is disposed
+    _dataCollectorService?.dispose();
     _spmController.dispose();
     _manualStepController.dispose();
     _customCommandController.dispose();
